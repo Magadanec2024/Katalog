@@ -1,0 +1,119 @@
+2025-10-01 01:32:20 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:32:20 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 01:32:20 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 01:32:21 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 01:32:21 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 01:32:21 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
+2025-10-01 01:36:08 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:36:08 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 01:36:08 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 01:36:08 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 01:36:08 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 01:36:08 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
+2025-10-01 01:38:58 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:38:58 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 01:38:58 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 01:38:58 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 01:38:58 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 01:38:58 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
+2025-10-01 01:43:30 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:43:30 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 01:43:30 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 01:43:31 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 01:43:31 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 01:43:31 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
+2025-10-01 01:47:34 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:47:34 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 01:47:34 - ProductCalculator - INFO - ==================================================
+2025-10-01 01:47:34 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 01:47:35 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 01:47:35 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 01:47:35 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
+2025-10-01 02:02:48 - ProductCalculator - INFO - ==================================================
+2025-10-01 02:02:48 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 02:02:48 - ProductCalculator - INFO - ==================================================
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 02:02:49 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 02:02:49 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 02:02:49 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
+2025-10-01 02:05:56 - ProductCalculator - INFO - ==================================================
+2025-10-01 02:05:56 - ProductCalculator - INFO - ЗАПУСК ПРИЛОЖЕНИЯ
+2025-10-01 02:05:56 - ProductCalculator - INFO - ==================================================
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Начало инициализации базы данных
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Подключение к базе данных установлено
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'employees' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'rates' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'operations_list' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'materials' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'products' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'operations' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Таблица 'product_materials' создана или уже существует
+2025-10-01 02:05:56 - ProductCalculator - INFO - Попытка загрузки сотрудников из data/employees.xlsx
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Прочитано 4 сотрудников из Excel
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Очищена таблица 'employees'
+2025-10-01 02:05:56 - ProductCalculator - INFO - Загружено 4 сотрудников из Excel.
+2025-10-01 02:05:56 - ProductCalculator - DEBUG - Инициализация базы данных завершена успешно
