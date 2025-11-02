@@ -1,6 +1,16 @@
 # modules/interface.py
-import sys, logger
 
+import sys
+import os
+
+from pathlib import Path
+
+# Автоматически находим путь к плагинам в текущем виртуальном окружении
+venv_base = Path(sys.executable).parent.parent  # поднимаемся из Scripts/
+plugins_path = venv_base / "Lib" / "site-packages" / "PyQt5" / "Qt5" / "plugins"
+
+if plugins_path.exists():
+    os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(plugins_path)
 import logger
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QGroupBox,

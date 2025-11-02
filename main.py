@@ -1,10 +1,22 @@
 # main.py
 import sys
 import os
+
+from pathlib import Path
+
+# Автоматически находим путь к плагинам в текущем виртуальном окружении
+venv_base = Path(sys.executable).parent.parent  # поднимаемся из Scripts/
+plugins_path = venv_base / "Lib" / "site-packages" / "PyQt5" / "Qt5" / "plugins"
+
+if plugins_path.exists():
+    os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(plugins_path)
+
 import logging
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QVBoxLayout, QWidget, QStatusBar, QMenuBar, \
     QMessageBox, QFileDialog
 from PyQt5.QtCore import Qt
+
+
 
 # Настройка логгирования
 logging.basicConfig(
