@@ -105,27 +105,25 @@ class PricingTab(QWidget):
                 QMessageBox.warning(self, "Ошибка", "Нет выбранного изделия для применения изменений")
                 return
 
-            # Собираем данные
-            approved_price = self.approved_price_spinbox.value()
+            # Собираем текущие данные
             pricing_data = self._collect_current_pricing_data()
-
-            # Сохраняем утвержденную цену в базе
-            query = "UPDATE products SET approved_price = ? WHERE id = ?"
-            self.db_manager.execute_query(query, (approved_price, self.current_product_id))
-            logger.info(
-                f"[ЦЕНА_ИНТЕРФЕЙС] Утвержденная цена {approved_price:.2f} грн сохранена в БД для изделия ID {self.current_product_id}")
-
-            # Обновляем внутренние значения
-            self._current_approved_price = approved_price
-            self._update_price_display(self._current_calculated_price, approved_price)
 
             # Испускаем сигнал
             self.pricing_applied.emit(self.current_product_id, pricing_data)
-            QMessageBox.information(self, "Успех", "Утвержденная цена успешно сохранена.")
+
+            # ОБНОВЛЯЕМ КАТАЛОГ
+            if hasattr(self, 'parent') and hasattr(self.parent(), 'update_catalog_prices'):
+                self.parent().update_catalog_prices(
+                    self.current_product_id,
+                    pricing_data['approved_price'],
+                    pricing_data['calculated_price']
+                )
+
+            QMessageBox.information(self, "Успех", "Изменения применены и сохранены в БД")
 
         except Exception as e:
             logger.error(f"[ЦЕНА_ИНТЕРФЕЙС] Ошибка при применении изменений: {e}", exc_info=True)
-            QMessageBox.critical(self, "Ошибка", f"Ошибка при сохранении утвержденной цены: {e}")
+            QMessageBox.critical(self, "Ошибка", f"Ошибка при применении изменений: {e}")
 
     def _collect_current_pricing_data(self):
         """Сбор текущих данных расчета цены"""

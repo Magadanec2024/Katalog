@@ -28,7 +28,7 @@ from modules.products import ProductManager
 from modules.calculations import CalculationManager
 from modules.reports import ReportManager
 from modules.interface_pricing import PricingTab
-from modules.catalog_table import CatalogTableTab
+from modules.catalog_table import CatalogTable
 
 logger = logging.getLogger(__name__)
 
@@ -55,14 +55,24 @@ class MainInterface(QWidget):
         self.operations_data = []
         self.materials_data = []
 
-        # Инициализация атрибутов интерфейса
+        # Создаём вкладку цены сразу
+        self.pricing_tab = PricingTab(self.db_manager, self)
+
+        # Инициализация UI компонентов
         self._init_ui_components()
 
         # Создание вкладок
+        self.tab_widget = QTabWidget()
         self.input_tab = self.create_input_tab()
         self.catalog_tab = self.create_catalog_tab()
-        # Создание вкладки "Цена изделия"
-        self.pricing_tab = PricingTab(db_manager)
+
+        self.tab_widget.addTab(self.input_tab, "Ввод данных")
+        self.tab_widget.addTab(self.pricing_tab, "Цена изделия")  # Вкладка всегда есть
+        self.tab_widget.addTab(self.catalog_tab, "Каталог")
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.tab_widget)
+        self.setLayout(main_layout)
 
         # Загрузка начальных данных
         self.load_initial_data()
@@ -106,6 +116,32 @@ class MainInterface(QWidget):
         self.products_list = None
         self.refresh_btn = None
         self.export_btn = None
+
+    def setup_ui(self):
+        """Настройка пользовательского интерфейса для QWidget"""
+        # Создаем главный layout
+        main_layout = QVBoxLayout(self)
+
+        # Создаем виджет вкладок
+        self.tab_widget = QTabWidget()
+
+        # Создаем вкладки
+        self.input_tab = self.create_input_tab()
+        self.catalog_tab = self.create_catalog_tab()
+
+        # Добавляем вкладки
+        self.tab_widget.addTab(self.catalog_tab, "Каталог")
+        self.tab_widget.addTab(self.input_tab, "Ввод данных")
+        # self.pricing_tab = PricingTab(self.db_manager, self)
+        # self.tab_widget.addTab(self.pricing_tab, "Цена изделия")
+
+
+
+        # Добавляем tab_widget в главный layout
+        main_layout.addWidget(self.tab_widget)
+
+        # Устанавливаем layout для виджета
+        self.setLayout(main_layout)
 
     def create_input_tab(self):
         """Создание вкладки ввода данных"""
@@ -562,17 +598,47 @@ class MainInterface(QWidget):
         return group
 
     def create_catalog_tab(self):
-        """Создание вкладки каталога с таблицей"""
-        logger.debug("Создание вкладки каталога с таблицей")
+        """Создание вкладки каталога с улучшенным функционалом"""
+        logger.debug("Создание вкладки каталога")
 
-        # ИСПОЛЬЗУЕМ НОВЫЙ ТАБЛИЧНЫЙ КАТАЛОГ
-        self.catalog_tab = CatalogTableTab(self.db_manager)
+        # Используем готовый виджет CatalogTable
+        self.catalog_table = CatalogTable(self.db_manager, self)
 
-        # Подключаем сигналы каталога к нашим сигналам
-        self.catalog_tab.product_selected_for_editing.connect(self.product_selected_for_editing.emit)
-        self.catalog_tab.product_selected_for_pricing.connect(self.product_selected_for_pricing.emit)
+        # Подключаем сигналы
+        self.catalog_table.product_selected.connect(self.on_catalog_product_selected)
+        self.catalog_table.product_deleted.connect(self.on_catalog_product_deleted)
+        self.catalog_table.catalog_updated.connect(self.on_catalog_updated)
+        self.catalog_table.product_edit_requested.connect(self.on_catalog_edit_requested)  # ДОБАВЛЯЕМ
 
-        return self.catalog_tab
+        return self.catalog_table
+
+    def on_catalog_product_selected(self, product_id):
+        """Обработка двойного клика — открыть вкладку 'Цена изделия'"""
+        try:
+            product = self.db_manager.fetch_one("SELECT id FROM products WHERE id = ?", (product_id,))
+            if not product:
+                QMessageBox.warning(self, "Ошибка", "Изделие не найдено в базе данных")
+                return
+            # Отправляем сигнал — переключение делает MainApplication
+            self.product_selected_for_pricing.emit(product_id)
+        except Exception as e:
+            logger.error(f"Ошибка при выборе изделия: {e}", exc_info=True)
+            QMessageBox.critical(self, "Ошибка", f"Ошибка при загрузке изделия: {e}")
+
+    def on_catalog_product_deleted(self, product_id):
+        """Обработка удаления изделия из каталога"""
+        logger.info(f"Изделие ID {product_id} удалено из каталога")
+        # Можно добавить дополнительную логику при необходимости
+
+    def on_catalog_updated(self):
+        """Обработка обновления каталога"""
+        logger.debug("Каталог обновлен")
+        # Обновляем другие компоненты при необходимости
+
+    def update_catalog_prices(self, product_id, approved_price, calculated_price):
+        """Обновление цен в каталоге при изменении в PricingTab"""
+        if hasattr(self, 'catalog_table'):
+            self.catalog_table.update_product_price(product_id, approved_price, calculated_price)
 
     def load_initial_data(self):
         """Загрузка начальных данных"""
@@ -691,7 +757,7 @@ class MainInterface(QWidget):
         """Загрузка сотрудников в комбобокс"""
         logger.debug("Загрузка сотрудников в комбобокс")
         try:
-            query = "SELECT id, name FROM employees ORDER BY name"
+            query = "SELECT id, name, surname FROM employees ORDER BY surname, name"
             employees = self.db_manager.fetch_all(query)
 
             logger.debug(f"Найдено сотрудников в БД: {len(employees)}")
@@ -711,6 +777,12 @@ class MainInterface(QWidget):
 
         except Exception as e:
             logger.error(f"Ошибка при загрузке сотрудников: {e}", exc_info=True)
+
+    def on_catalog_edit_requested(self, product_id):
+        """Обработка запроса на редактирование изделия из каталога"""
+        logger.info(f"Запрос на редактирование изделия ID {product_id}")
+        # Просто отправляем сигнал — переключение делает MainApplication
+        self.product_selected_for_editing.emit(product_id)
 
     def load_operations_to_combo(self):
         """Загрузка операций в комбобокс"""

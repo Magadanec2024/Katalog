@@ -44,6 +44,20 @@ except ImportError as e:
     QMessageBox.critical(None, "Ошибка импорта", f"Не удалось импортировать необходимые модули: {e}")
     sys.exit(1)
 
+    # Проверка и добавление колонки calculated_price, если её нет
+def ensure_calculated_price_column(db_manager: DatabaseManager):
+    try:
+        # Проверим, существует ли колонка
+        db_manager.execute_query("SELECT calculated_price FROM products LIMIT 1")
+        logger.info("Колонка 'calculated_price' уже существует в таблице products")
+    except Exception as e:
+        if "no such column: calculated_price" in str(e):
+            logger.info("Колонка 'calculated_price' отсутствует. Добавляем...")
+            db_manager.execute_query("ALTER TABLE products ADD COLUMN calculated_price REAL")
+            logger.info("Колонка 'calculated_price' успешно добавлена")
+        else:
+            logger.error(f"Неожиданная ошибка при проверке колонки: {e}")
+            raise
 
 class MainApplication(QMainWindow):
     """Главная форма приложения"""
@@ -67,6 +81,8 @@ class MainApplication(QMainWindow):
         self.setup_ui()
         logger.info("Главное окно приложения создано")
 
+
+
     def setup_ui(self):
         """Настройка пользовательского интерфейса"""
         logger.debug("Начало настройки UI")
@@ -82,21 +98,20 @@ class MainApplication(QMainWindow):
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabsClosable(False)
 
-        # Сначала создаем интерфейс
+        # Создание интерфейса — pricing_tab теперь создаётся сразу
         try:
             self.interface = MainInterface(self.db_manager)
 
-            self.tab_widget.addTab(self.interface.input_tab, "Ввод данных")
-            self.tab_widget.addTab(self.interface.catalog_tab, "Каталог")
-            self.tab_widget.addTab(self.interface.pricing_tab, "Цена изделия")
+            # Установим порядок вкладок: Каталог, Цена изделия, Ввод данных
+            self.tab_widget.addTab(self.interface.catalog_tab, "Каталог")  # index 0
+            self.tab_widget.addTab(self.interface.pricing_tab, "Цена изделия")  # index 1
+            self.tab_widget.addTab(self.interface.input_tab, "Ввод данных")  # index 2
+
             logger.debug("Интерфейс и вкладки созданы")
 
-            # Подключаем сигналы переключения вкладок
+            # Подключаем сигналы — pricing_tab теперь точно существует
             self.interface.product_selected_for_editing.connect(self.switch_to_input_tab)
             self.interface.product_selected_for_pricing.connect(self.switch_to_pricing_tab)
-
-            # ПРОВЕРЯЕМ подключение сигнала цены
-            logger.debug("Подключаем сигнал pricing_applied...")
             self.interface.pricing_tab.pricing_applied.connect(self.save_pricing_changes)
             logger.debug("Сигнал pricing_applied подключен")
 
@@ -110,6 +125,9 @@ class MainApplication(QMainWindow):
         self.fix_incorrect_approved_prices()
 
         main_layout.addWidget(self.tab_widget)
+
+        # По умолчанию открываем "Каталог" (индекс 0)
+        self.tab_widget.setCurrentIndex(0)
 
         # Создание статусной строки
         self.status_bar = QStatusBar()
@@ -125,15 +143,13 @@ class MainApplication(QMainWindow):
     def switch_to_pricing_tab(self, product_id):
         """Переключение на вкладку 'Цена изделия'"""
         logger.debug(f"Переключение на вкладку 'Цена изделия' для изделия ID {product_id}")
-        self.tab_widget.setCurrentIndex(2)  # Вкладка "Цена изделия"
-        # Устанавливаем изделие во вкладке цены
+        self.tab_widget.setCurrentIndex(1)  # Вкладка "Цена изделия" — индекс 1
         self.interface.pricing_tab.set_product(product_id)
 
     def switch_to_input_tab(self, product_id):
         """Переключение на вкладку 'Ввод данных'"""
         logger.debug(f"Переключение на вкладку 'Ввод данных' для изделия ID {product_id}")
-        self.tab_widget.setCurrentIndex(0)  # Вкладка "Ввод данных"
-        # Загружаем изделие в форму
+        self.tab_widget.setCurrentIndex(2)  # Вкладка "Ввод данных" — индекс 2
         self.interface.load_product_to_form(product_id)
 
     def create_menu(self):
@@ -391,27 +407,27 @@ class MainApplication(QMainWindow):
         """Сохранение данных цены в БД"""
         logger.debug(f"Сохранение данных цены в БД для изделия ID {product_id}")
 
-        # Обновляем данные - убедимся, что значения числовые
         query = """
             UPDATE products 
-            SET overhead_percent = ?, profit_percent = ?, approved_price = ?
+            SET overhead_percent = ?, profit_percent = ?, approved_price = ?, calculated_price = ?
             WHERE id = ?
         """
 
-        # Преобразуем значения в float для безопасности
         overhead_percent = float(pricing_data.get('overhead_percent', 0.55))
         profit_percent = float(pricing_data.get('profit_percent', 0.30))
-
-        # ИСПРАВЛЕНИЕ: правильно получаем утвержденную цену
         approved_price = float(pricing_data.get('approved_price', 0.0))
+        calculated_price = float(pricing_data.get('calculated_price', 0.0))  # ← новое поле
 
         logger.debug(
-            f"[СОХРАНЕНИЕ_ЦЕНЫ] Сохраняемые значения: overhead={overhead_percent}, profit={profit_percent}, approved={approved_price}")
+            f"[СОХРАНЕНИЕ_ЦЕНЫ] Сохраняем: overhead={overhead_percent}, profit={profit_percent}, "
+            f"approved={approved_price}, calculated={calculated_price}"
+        )
 
         params = (
             overhead_percent,
             profit_percent,
             approved_price,
+            calculated_price,  # ← добавлено
             product_id
         )
 
@@ -690,20 +706,30 @@ class MainApplication(QMainWindow):
 
 
 def main():
-    """Главная функция приложения"""
     logger.info("ЗАПУСК ГЛАВНОЙ ФУНКЦИИ")
     try:
         app = QApplication(sys.argv)
         app.setStyle('Fusion')
         logger.debug("QApplication инициализировано")
 
+        # Создаём менеджер базы данных
+        db_manager = DatabaseManager()
+
+        # ✅ Добавляем колонку, если её нет
+        ensure_calculated_price_column(db_manager)
+
+        # Теперь создаём главное окно
         window = MainApplication()
+        # Передаём db_manager вручную, если он создаётся внутри MainApplication — пропустите эту строку
+        # ИЛИ: убедитесь, что внутри MainApplication.__init__ тоже вызывается ensure_calculated_price_column
+
         window.show()
         logger.info("Главное окно показано")
 
         exit_code = app.exec_()
         logger.info(f"Приложение завершено с кодом выхода: {exit_code}")
         sys.exit(exit_code)
+
     except Exception as e:
         logger.critical(f"Критическая ошибка при запуске приложения: {e}", exc_info=True)
         QMessageBox.critical(None, "Критическая ошибка", f"Критическая ошибка при запуске приложения: {e}")
