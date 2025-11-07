@@ -968,7 +968,7 @@ class MainInterface(QWidget):
             # Рассчитываем cost: если есть approved_rate — используем её (как абсолютную сумму),
             # иначе считаем time_per_unit * rate_per_minute
             cost = None
-            if approved_str:
+            if approved_str and approved_str.strip() != "":
                 try:
                     cost = float(self._parse_decimal_value(approved_str))
                     logger.debug(f"Используется утверждённая расценка: {cost}")
@@ -1027,7 +1027,7 @@ class MainInterface(QWidget):
                         rate_per_minute,
                         cost,
                         current_employee_id,
-                        approved_str or None
+                        approved_str if approved_str.strip() != "" else None
                     )
                     self.db_manager.execute_query(insert_q, params)
                     # Получим id последней вставки
@@ -1066,7 +1066,7 @@ class MainInterface(QWidget):
                         "cost": cost,
                         "employee_id": current_employee_id,
                         "employee_name": current_employee_name,
-                        "approved_rate": approved_str or None
+                        "approved_rate": approved_str if approved_str.strip() != "" else None
                     })
             else:
                 logger.error("Не удалось получить или создать id операции — изменения не записаны в БД")
