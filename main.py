@@ -183,6 +183,10 @@ class MainApplication(QMainWindow):
         import_materials_action = reference_menu.addAction('Импорт материалов')
         import_materials_action.triggered.connect(self.import_materials)
 
+        # === НОВЫЙ ПУНКТ ===
+        show_materials_action = reference_menu.addAction('Показать справочник материалов')
+        show_materials_action.triggered.connect(self.show_materials_dialog)
+
         import_rates_action = reference_menu.addAction('Импорт ставок')
         import_rates_action.triggered.connect(self.import_rates)
 
@@ -205,6 +209,26 @@ class MainApplication(QMainWindow):
         calculate_price_action = price_menu.addAction('Рассчитать цену изделия')
         calculate_price_action.setShortcut('Ctrl+Shift+C')
         calculate_price_action.triggered.connect(self.calculate_selected_product_price)
+
+    def show_materials_dialog(self):
+        """Открытие диалога со справочником материалов"""
+        try:
+            from modules.materials_dialog import MaterialsDialog
+            dialog = MaterialsDialog(self.db_manager, self)
+            dialog.exec_()
+        except Exception as e:
+            logger.error(f"Ошибка при открытии справочника материалов: {e}", exc_info=True)
+            QMessageBox.critical(self, "Ошибка", f"Не удалось открыть справочник материалов:\n{e}")
+
+    def show_materials_dialog(self):
+        """Открытие диалога со справочником материалов"""
+        try:
+            from modules.materials_dialog import MaterialsDialog
+            dialog = MaterialsDialog(self.db_manager, self)
+            dialog.exec_()
+        except Exception as e:
+            logger.error(f"Ошибка при открытии справочника материалов: {e}", exc_info=True)
+            QMessageBox.critical(self, "Ошибка", f"Не удалось открыть справочник материалов:\n{e}")
 
     def manage_employees(self):
         """Открытие диалога управления сотрудниками"""
