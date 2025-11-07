@@ -295,6 +295,10 @@ class CatalogTable(QWidget):
         current_row = self.products_table.currentRow()
         if current_row < 0:
             QMessageBox.warning(self, "Ошибка", "Выберите изделие для удаления")
+
+        # Уведомляем интерфейс, что изделие удалено
+        if hasattr(self.parent(), 'on_catalog_product_deleted'):
+            self.parent().on_catalog_product_deleted(product_id)
             return
 
         # Получаем ID изделия

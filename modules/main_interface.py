@@ -626,9 +626,10 @@ class MainInterface(QWidget):
             QMessageBox.critical(self, "Ошибка", f"Ошибка при загрузке изделия: {e}")
 
     def on_catalog_product_deleted(self, product_id):
-        """Обработка удаления изделия из каталога"""
-        logger.info(f"Изделие ID {product_id} удалено из каталога")
-        # Можно добавить дополнительную логику при необходимости
+        """Сброс данных при удалении изделия из каталога"""
+        if self.current_product_id == product_id:
+            self.clear_form()
+        # Также можно обновить каталог, но это уже делает CatalogTable
 
     def on_catalog_updated(self):
         """Обработка обновления каталога"""
@@ -754,29 +755,28 @@ class MainInterface(QWidget):
             self.catalog_tab.refresh_catalog()
 
     def load_employees_to_combo(self):
-        """Загрузка сотрудников в комбобокс"""
+        """Загрузка сотрудников в комбобокс — ФИО в одном поле"""
         logger.debug("Загрузка сотрудников в комбобокс")
         try:
-            query = "SELECT id, name, surname FROM employees ORDER BY surname, name"
+            # Берём только id и name (ФИО целиком)
+            query = "SELECT id, name FROM employees ORDER BY name"
             employees = self.db_manager.fetch_all(query)
-
             logger.debug(f"Найдено сотрудников в БД: {len(employees)}")
-            for emp in employees:
-                logger.debug(f"Сотрудник: ID={emp[0]}, Name={emp[1]}")
 
             self.employee_combo.clear()
-            self.employee_combo.addItem("Не назначен", None)  # Пустой элемент
+            self.employee_combo.addItem("Не назначен", None)
+            for emp_id, full_name in employees:
+                self.employee_combo.addItem(full_name.strip(), emp_id)
+                logger.debug(f"Добавлен сотрудник: {full_name} (ID: {emp_id})")
 
-            for emp_id, emp_name in employees:
-                self.employee_combo.addItem(emp_name, emp_id)
-                logger.debug(f"Добавлен в комбобокс: {emp_name} (ID: {emp_id})")
-
-            if len(employees) == 0:
-                logger.warning("В БД нет сотрудников! Добавьте сотрудников через Excel файл")
-                QMessageBox.warning(None, "Внимание", "В базе данных нет сотрудников. Загрузите файл employees.xlsx")
+            if not employees:
+                logger.warning("В БД нет сотрудников!")
+                QMessageBox.warning(None, "Внимание",
+                                    "Сотрудники не загружены. Используйте меню 'Справочники → Список сотрудников'.")
 
         except Exception as e:
             logger.error(f"Ошибка при загрузке сотрудников: {e}", exc_info=True)
+            QMessageBox.critical(None, "Ошибка", f"Не удалось загрузить список сотрудников:\n{e}")
 
     def on_catalog_edit_requested(self, product_id):
         """Обработка запроса на редактирование изделия из каталога"""
@@ -1292,56 +1292,86 @@ class MainInterface(QWidget):
             QMessageBox.critical(None, "Ошибка", f"Не удалось загрузить операции:\n{e}")
 
     def update_selected_material(self):
-        """Обновление выбранного материала"""
+        """Обновление выбранного материала — с сохранением в БД"""
         logger.debug("Обновление выбранного материала")
         current_row = self.materials_table.currentRow()
-        if current_row >= 0:
-            try:
-                # Получаем текущие значения из таблицы
-                material_name = self.materials_table.item(current_row, 0).text()
-                length = float(self.materials_table.item(current_row, 1).text())
-                width = float(self.materials_table.item(current_row, 2).text())
-                quantity = int(self.materials_table.item(current_row, 3).text())
-
-                # Найдем ID материала по названию
-                material_info = self.material_manager.get_material_by_name(material_name)
-                if not material_info:
-                    QMessageBox.warning(None, "Ошибка", "Не удалось найти материал для обновления")
-                    return
-
-                material_id = material_info[0]
-                category = material_info[1]
-
-                # Расчет стоимости в зависимости от типа материала
-                if category in ['Труба', 'Проволока', 'Профиль', 'Профиль г/к', 'Прут']:
-                    # Расчет стоимости для труб, проволоки, профиля: длина * вес_1м * количество
-                    weight_per_meter = material_info[7]  # индекс веса за 1 м
-                    our_price_per_kg = material_info[13]  # наша цена за кг
-                    total_weight = length * weight_per_meter * quantity
-                    cost = total_weight * our_price_per_kg
-                elif category == 'Лист':
-                    # Расчет стоимости для листа: длина * ширина * толщина * плотность * количество * цена_за_кг
-                    thickness = 0.01  # используем среднюю толщину, если не указана
-                    density = 7850  # плотность стали в кг/м3
-                    volume = length * width * thickness * quantity  # в м3
-                    weight = volume * density
-                    our_price_per_kg = material_info[13]  # наша цена за кг
-                    cost = weight * our_price_per_kg
-                else:  # Метизы
-                    # Расчет стоимости для метизов: цена_за_единицу * количество
-                    our_price_per_kg = material_info[13]  # наша цена за кг или за штуку
-                    cost = our_price_per_kg * quantity
-
-                # Обновляем значение стоимости в таблице
-                self.materials_table.setItem(current_row, 4, QTableWidgetItem(f"{cost:.2f}"))
-
-                # Обновляем данные в списке
-                if current_row < len(self.materials_data):
-                    self.materials_data[current_row]['cost'] = cost
-            except (ValueError, AttributeError):
-                QMessageBox.warning(None, "Ошибка", "Неверные данные в строке материала")
-        else:
+        if current_row < 0:
             QMessageBox.warning(None, "Ошибка", "Выберите материал для обновления")
+            return
+
+        try:
+            # Получаем текущие значения из таблицы
+            material_name = self.materials_table.item(current_row, 0).text()
+            length_str = self.materials_table.item(current_row, 1).text()
+            width_str = self.materials_table.item(current_row, 2).text()
+            quantity_str = self.materials_table.item(current_row, 3).text()
+            cost_str = self.materials_table.item(current_row, 4).text()
+
+            length = float(length_str) if length_str else 0.0
+            width = float(width_str) if width_str else 0.0
+            quantity = int(quantity_str) if quantity_str else 0
+
+            # Находим material_id
+            material_info = self.material_manager.get_material_by_name(material_name)
+            if not material_info:
+                QMessageBox.warning(None, "Ошибка", "Материал не найден в справочнике")
+                return
+            material_id = material_info[0]
+            our_price_per_kg = material_info[13]
+
+            category = material_info[1]
+            if category in ['Труба', 'Проволока', 'Профиль', 'Профиль г/к', 'Прут']:
+                weight_per_meter = material_info[7]
+                total_weight = length * weight_per_meter * quantity
+                cost = total_weight * our_price_per_kg
+            elif category == 'Лист':
+                thickness = self.materials_data[current_row].get('thickness', 0.01)  # берём из памяти!
+                density = 7850
+                volume = length * width * thickness * quantity
+                weight = volume * density
+                cost = weight * our_price_per_kg
+            else:  # Метизы
+                cost = our_price_per_kg * quantity
+
+            # === СРАЗУ СОХРАНЯЕМ В БД ===
+            if self.current_product_id and current_row < len(self.materials_data):
+                mat_data = self.materials_data[current_row]
+                update_query = """
+                    UPDATE product_materials
+                    SET length = ?, width = ?, thickness = ?, quantity = ?, cost = ?
+                    WHERE product_id = ? AND material_id = ?
+                """
+                params = (
+                    length, width, mat_data.get('thickness', 0.0), quantity, cost,
+                    self.current_product_id, material_id
+                )
+                self.db_manager.execute_query(update_query, params)
+                logger.info(f"Материал '{material_name}' обновлён в БД")
+
+            # Обновляем GUI
+            self.materials_table.setItem(current_row, 4, QTableWidgetItem(f"{cost:.2f}"))
+
+            # Обновляем в памяти
+            if current_row < len(self.materials_data):
+                self.materials_data[current_row]['cost'] = cost
+                self.materials_data[current_row]['length'] = length
+                self.materials_data[current_row]['width'] = width
+                self.materials_data[current_row]['quantity'] = quantity
+
+            # Автоматический пересчёт цены
+            from modules.pricing import PricingManager
+            pricing = PricingManager(self.db_manager)
+            result = pricing.calculate_pricing(self.current_product_id)
+            calculated_price = result["cost_indicators"]["calculated_price"]
+            approved_price = result["cost_indicators"]["approved_price"]
+            if hasattr(self, "pricing_tab") and self.pricing_tab:
+                self.pricing_tab.update_price_display(calculated_price, approved_price)
+
+            QMessageBox.information(None, "Успех", "Материал обновлён")
+
+        except Exception as e:
+            logger.error(f"Ошибка при обновлении материала: {e}", exc_info=True)
+            QMessageBox.critical(None, "Ошибка", f"Не удалось обновить материал:\n{e}")
 
     def delete_selected_material(self):
         """Удаление выбранного материала из таблицы"""
